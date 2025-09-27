@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodLink - Select User Type</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .red-bg {
+            background: #dc2626;
+        }
+    </style>
+    <link rel="icon" type="image/jpeg" href="/Screens/logo.jpg">
+    <link rel="icon" type="image/svg+xml" href="/Screens/logo.svg">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center font-sans">
+    <!-- Logo Section -->
+    <div class="flex items-center mb-12">
+        <!-- Blood Drop Icon in Red Square -->
+        <div class="red-bg rounded-lg p-3 mr-4 shadow-lg">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                    fill="white" />
+            </svg>
+        </div>
+        <!-- Brand Name -->
+        <h1 class="text-2xl font-bold text-gray-800">BloodLink</h1>
+    </div>
+
+    <!-- Main Content -->
+    <div class="text-center">
+        <!-- Heading -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-12">Select User Type Below:</h2>
+
+        <!-- User Type Buttons -->
+        <div class="flex gap-6 justify-center">
+            <a href="/register/donor"
+                class="w-40 bg-white text-gray-800 font-bold text-xl px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200 hover:bg-gray-50 hover:scale-105 text-center inline-block">
+                Donor
+            </a>
+            <a href="/register/recipient"
+                class="w-40 bg-white text-gray-800 font-bold text-xl px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200 hover:bg-gray-50 hover:scale-105 text-center inline-block">
+                Recipient
+            </a>
+        </div>
+    </div>
+
+    <!-- No JS needed for navigation; links above handle it. -->
+    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9831dadfb492909f',t:'MTc1ODU0NDY2MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
+</body>
+
+</html>
