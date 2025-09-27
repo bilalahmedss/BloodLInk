@@ -1,50 +1,79 @@
+# BloodLink – Connecting Donors and Recipients 
 
-# BloodLink
+**BloodLink** is a web-based system designed to streamline the blood donation management process. It supports user registration and authentication for Donors, Recipients, and Managers, along with providing role-based dashboards and database integration.
 
-## About
-BloodLink is a web-based system for blood donation management. It supports registration and authentication for Donors, Recipients, and Managers, and provides dashboards for each role.
+## Table of Contents:
+- [Modules](#modules)
+- [Tech Stack](#tech-stack)
+- [Installation](#installation)
+- [Run it locally](#run-it-locally)
+- [Notes](#notes)
 
 ## Modules
+### 1. Registration & Authentication
+- Users can register as **Donor** or **Recipient**.
+- The login page is shared for all user types.
+- Upon login, the system checks the credentials and redirects users to their respective dashboards based on their role.
+- The **Manager** role is hardcoded in the database and not available for user registration.
 
-**1. Registration & Authentication**
-- Users can register as Donor, Recipient, or Manager.
-- Secure login for all roles.
 
-**2. Dashboards**
-- Role-based dashboards show relevant information and actions for each user type.
 
-**3. Database Integration**
-- Uses SQL Server for storing user and donation data.
+### 2. Dashboards
+- Role-based dashboards that display relevant information and actions for each user type.
 
-## How to Run
+### 3. Database Integration
+- Uses **SQL Server** for storing user and donation data.
+- Handles registration, blood donation requests, and management functions.
 
-1. Install Python 3.11 and required libraries:
-	```powershell
-	python -m venv .venv
-	.\.venv\Scripts\Activate.ps1
-	pip install -r requirements.txt
-	```
+## Tech Stack
+- **Frontend**: HTML, CSS, JavaScript
+- **Backend**: Python, Flask
+- **Database**: SQL Server
+- **Other**: ODBC Driver for SQL Server
 
-2. Set up SQL Server and create the database/tables using `Database/create.sql`.
+## Installation
 
-3. (Optional) Set environment variables for custom DB settings:
-	```powershell
-	$env:MSSQL_SERVER = 'localhost\\SQLEXPRESS'
-	$env:MSSQL_DATABASE = 'BloodLink'
-	$env:MSSQL_DRIVER = 'ODBC Driver 17 for SQL Server'
-	$env:SECRET_KEY = 'your-secret-key'
-	```
+### Prerequisites
+- **Python 3.11** or higher
+- **SQL Server** 
 
-4. Run the app:
-	```powershell
-	python app.py
-	```
 
-5. Open your browser to:
-	- Registration: http://127.0.0.1:5000/register
-	- Login: http://127.0.0.1:5000/login
+## Steps
+
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/bilalahmedss/BloodLInk
+    ```
+
+2. **Navigate to the project directory**:
+    ```bash
+    cd BloodLInk
+    ```
+3. **Create a virtual environment (Powershell)**:
+   - ```bash
+     python -m venv .venv
+    - ```bash
+      .\.venv\Scripts\Activate.ps1
+5. **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+6. **Set up SQL Server and create the database**:
+    - Run the SQL script in `Database/create.sql` to set up the tables in SQL Server.
+
+
+## Run it locally
+
+1. **Run the app**:
+    ```bash
+    python app.py
+    ```
+
+2. **Open your browser** and access the following page:
+    -  [http://127.0.0.1:5000](http://127.0.0.1:5000)
+    
 
 ## Notes
-- Templates are in the `Screens/` folder.
-- Place your favicon/logo in the `static` folder and reference it in your HTML.
-- Set a secure `SECRET_KEY` for production.
+- Templates are stored in the `Screens/` folder.
+
