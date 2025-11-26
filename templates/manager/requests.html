@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}BloodLink - Requests{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-2xl font-bold text-gray-800">Blood Requests</h1>
+        <a href="{{ url_for('manager.dashboard') }}" class="text-red-600 hover:text-red-800">Back to Dashboard</a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipient
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Blood
+                        Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Units
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for req in requests %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {{ req.name }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span
+                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                            {{ req.type }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ req.units_required }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ req.date_requested }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if req.status == 'Pending' %} bg-yellow-100 text-yellow-800
+                            {% elif req.status == 'Approved' %} bg-blue-100 text-blue-800
+                            {% elif req.status == 'Fulfilled' %} bg-green-100 text-green-800
+                            {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                            {{ req.status }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        {% if req.status == 'Pending' %}
+                        <button onclick="approveRequest({{ req.id }})"
+                            class="text-blue-600 hover:text-blue-900">Approve</button>
+                        {% endif %}
+                        {% if req.status == 'Approved' %}
+                        <button onclick="fulfillRequest({{ req.id }})"
+                            class="text-green-600 hover:text-green-900">Fulfill</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">No requests found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function approveRequest(id) {
+        if (!confirm('Approve this request and notify donors?')) return;
+        fetch('/manager/approve-request/' + id, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Request Approved!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            });
+    }
+
+    function fulfillRequest(id) {
+        if (!confirm('Mark this request as fulfilled?')) return;
+        fetch('/manager/fulfill-request/' + id, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Request Fulfilled!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            });
+    }
+</script>
+{% endblock %}

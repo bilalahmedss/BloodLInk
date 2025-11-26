@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}BloodLink - Donation Entry{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-2xl font-bold text-gray-800">Donation Entry</h1>
+        <a href="{{ url_for('manager.dashboard') }}" class="text-red-600 hover:text-red-800">Back to Dashboard</a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6 max-w-2xl mx-auto">
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Donor ID</label>
+            <div class="flex">
+                <input type="number" id="donorId"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                <button onclick="lookupDonor()"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700">Lookup</button>
+            </div>
+        </div>
+
+        <div id="donorInfo" class="hidden space-y-4 border-t pt-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm text-gray-500">Name</p>
+                    <p class="font-semibold" id="donorName"></p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Blood Type</p>
+                    <p class="font-semibold" id="donorBloodType"></p>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Volume (Units)</label>
+                <input type="number" id="volume" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="1">
+            </div>
+
+            <div class="flex items-center">
+                <input type="checkbox" id="isExchange"
+                    class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                <label for="isExchange" class="ml-2 block text-sm text-gray-900">Is Exchange for Recipient?</label>
+            </div>
+
+            <button onclick="submitDonation()"
+                class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 font-semibold">
+                Submit Donation
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function lookupDonor() {
+        const id = document.getElementById('donorId').value;
+        fetch('/manager/donor-lookup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ donor_id: id })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById('donorName').innerText = data.name;
+                    document.getElementById('donorBloodType').innerText = data.blood_type;
+                    document.getElementById('donorInfo').classList.remove('hidden');
+                }
+            });
+    }
+
+    function submitDonation() {
+        const id = document.getElementById('donorId').value;
+        const volume = document.getElementById('volume').value;
+        const isExchange = document.getElementById('isExchange').checked;
+
+        fetch('/manager/submit-donation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                donor_id: id,
+                volume: volume,
+                is_exchange: isExchange
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Donation recorded!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            });
+    }
+</script>
+{% endblock %}

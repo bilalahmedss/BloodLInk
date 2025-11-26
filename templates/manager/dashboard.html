@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}BloodLink - Manager Dashboard{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center">
+            <div <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="rounded-md p-4 mb-6 text-sm font-medium
+                    {% if category == 'success' %} bg-green-100 border border-green-200 text-green-800
+                    {% else %} bg-red-100 border border-red-200 text-red-800
+                    {% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <!-- Management Links Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <!-- Donation Entry (New Feature) -->
+                    <a href="{{ url_for('manager.donation_entry') }}"
+                        class="bg-white rounded-xl shadow-sm p-6 card-hover border-2 border-transparent hover:border-purple-300 transition-all">
+                        <div class="flex items-center mb-3">
+                            <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800">Donation Entry</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm">Record new blood donations from donors.</p>
+                    </a>
+
+                    <!-- View Inventory -->
+                    <a href="{{ url_for('manager.inventory') }}"
+                        class="bg-white rounded-xl shadow-sm p-6 card-hover border-2 border-transparent hover:border-red-300 transition-all">
+                        <div class="flex items-center mb-3">
+                            <div class="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4">
+                                    </path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800">Manage Inventory</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm">View a detailed summary of the current blood stock.</p>
+                    </a>
+
+                    <!-- View Donors -->
+                    <a href="{{ url_for('manager.donors') }}"
+                        class="bg-white rounded-xl shadow-sm p-6 card-hover border-2 border-transparent hover:border-blue-300 transition-all">
+                        <div class="flex items-center mb-3">
+                            <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                    </path>
+                                </svg>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800">View All Requests</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm">Monitor all active and historical blood requests from
+                            recipients.</p>
+                    </a>
+
+                </div>
+            </div>
+            {% endblock %}
