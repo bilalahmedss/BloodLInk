@@ -71,6 +71,7 @@ Main/
 │   └── create.sql        # Database schema
 │
 ├── app.py                # App factory & Config
+├── db.py                 # Database Access Layer
 ├── run.py                # Entry point
 ├── requirements.txt      # Dependencies
 └── README.md             # Documentation
