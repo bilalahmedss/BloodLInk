@@ -55,6 +55,14 @@ def create_user(email, password, role):
     conn.close()
     return user_id
 
+def get_blood_type_id(type_str):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT bloodtype_id FROM Blood_Type WHERE type = ?", (type_str,))
+    row = cursor.fetchone()
+    conn.close()
+    return row[0] if row else None
+
 def register_user_transaction(email, password, role, name, **kwargs):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -62,6 +70,10 @@ def register_user_transaction(email, password, role, name, **kwargs):
         cursor.execute("INSERT INTO [User] (email, password, role) OUTPUT INSERTED.id VALUES (?, ?, ?)", (email, password, role))
         user_id = cursor.fetchone()[0]
         
+        blood_type_id = None
+        if kwargs.get('blood_type'):
+            blood_type_id = get_blood_type_id(kwargs.get('blood_type'))
+
         if role == 'Donor':
             age = None
             dob = None
@@ -73,9 +85,9 @@ def register_user_transaction(email, password, role, name, **kwargs):
             cursor.execute("""
                 INSERT INTO Donor (name, user_id, bloodtype, DOB, age, area, number) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (name, user_id, kwargs.get('blood_type'), dob, age, kwargs.get('area'), kwargs.get('number')))
+            """, (name, user_id, blood_type_id, dob, age, kwargs.get('area'), kwargs.get('number')))
         elif role == 'Recipient':
-            cursor.execute("INSERT INTO Recipient (name, user_id, bloodtype) VALUES (?, ?, ?)", (name, user_id, kwargs.get('blood_type')))
+            cursor.execute("INSERT INTO Recipient (name, user_id, bloodtype, area) VALUES (?, ?, ?, ?)", (name, user_id, blood_type_id, kwargs.get('area')))
         elif role == 'Manager':
             cursor.execute("INSERT INTO Manager (name, user_id) VALUES (?, ?)", (name, user_id))
         
