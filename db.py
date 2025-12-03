@@ -422,6 +422,8 @@ def submit_donation_transaction(donor_id, volume, is_exchange, request_id=None):
         blood_type_id = row[0]
         area_id = row[1]
         
+        is_direct_exchange = False # Initialize flag
+        
         # Step 0a: Enforce 1 Unit Limit
         if int(volume) != 1:
             return False, "Donation limit is strictly 1 unit per session."
@@ -463,10 +465,16 @@ def submit_donation_transaction(donor_id, volume, is_exchange, request_id=None):
             if str(area_id) != str(req_area_id):
                  return False, "Location Mismatch: Donor and Request must be in the same area."
 
-            # B. Consume Stock (Outbound) - Swap Mechanism
-            # We consume 'volume' amount of the REQUIRED blood type from the SAME area.
-            if not consume_stock(cursor, area_id, req_blood_type_id, int(volume)):
-                 return False, "Exchange Failed: Insufficient stock of required blood type for recipient."
+            # Check for Direct Exchange (Same Blood Type)
+            # If Donor Type == Recipient Type, we don't need to swap stock.
+            # We just assign this donation to the request directly.
+            is_direct_exchange = (blood_type_id == req_blood_type_id)
+
+            if not is_direct_exchange:
+                # B. Consume Stock (Outbound) - Swap Mechanism
+                # We consume 'volume' amount of the REQUIRED blood type from the SAME area.
+                if not consume_stock(cursor, area_id, req_blood_type_id, int(volume)):
+                     return False, "Exchange Failed: Insufficient stock of required blood type for recipient."
 
         # Step 2: Record Donation (Inbound)
         cursor.execute("""
@@ -477,10 +485,13 @@ def submit_donation_transaction(donor_id, volume, is_exchange, request_id=None):
         donation_id = cursor.fetchone()[0]
         
         # Step 3: Add to Stock (Inbound)
-        cursor.execute("""
-            INSERT INTO Stock (units, donation_id, area_id)
-            VALUES (?, ?, ?)
-        """, (volume, donation_id, area_id))
+        # Only add to stock if it's NOT a direct exchange.
+        # Direct exchange units are logically consumed by the request immediately.
+        if not is_direct_exchange:
+            cursor.execute("""
+                INSERT INTO Stock (units, donation_id, area_id)
+                VALUES (?, ?, ?)
+            """, (volume, donation_id, area_id))
         
         # Step 4: Update Donor History
         cursor.execute("INSERT INTO dbo.Donor_History (donor_id, [date], [unit]) VALUES (?, GETDATE(), ?)", (donor_id, volume))
@@ -522,7 +533,7 @@ def submit_donation_transaction(donor_id, volume, is_exchange, request_id=None):
         if donor_user_id:
              cursor.execute("""
                 INSERT INTO Notifications (user_id, message, type)
-                VALUES (?, ?, 'Donation')
+                VALUES (?, ?, 'General')
             """, (donor_user_id, f'Thank you! Your donation of {volume} unit(s) has been recorded.'))
 
         conn.commit()
