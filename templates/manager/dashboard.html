@@ -7,72 +7,123 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
         <div class="flex items-center">
-            <div <!-- Flash Messages -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                {% for category, message in messages %}
-                <div class="rounded-md p-4 mb-6 text-sm font-medium
-                    {% if category == 'success' %} bg-green-100 border border-green-200 text-green-800
-                    {% else %} bg-red-100 border border-red-200 text-red-800
-                    {% endif %}">
-                    {{ message }}
-                </div>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
-
-                <!-- Management Links Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                    <!-- Donation Entry (New Feature) -->
-                    <a href="{{ url_for('manager.donation_entry') }}"
-                        class="bg-white rounded-xl shadow-sm p-6 card-hover border-2 border-transparent hover:border-purple-300 transition-all">
-                        <div class="flex items-center mb-3">
-                            <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mr-4">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 4v16m8-8H4"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-800">Donation Entry</h3>
-                        </div>
-                        <p class="text-gray-600 text-sm">Record new blood donations from donors.</p>
-                    </a>
-
-                    <!-- View Inventory -->
-                    <a href="{{ url_for('manager.inventory') }}"
-                        class="bg-white rounded-xl shadow-sm p-6 card-hover border-2 border-transparent hover:border-red-300 transition-all">
-                        <div class="flex items-center mb-3">
-                            <div class="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mr-4">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4">
-                                    </path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-800">Manage Inventory</h3>
-                        </div>
-                        <p class="text-gray-600 text-sm">View a detailed summary of the current blood stock.</p>
-                    </a>
-
-                    <!-- View Donors -->
-                    <a href="{{ url_for('manager.donors') }}"
-                        class="bg-white rounded-xl shadow-sm p-6 card-hover border-2 border-transparent hover:border-blue-300 transition-all">
-                        <div class="flex items-center mb-3">
-                            <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mr-4">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                                    </path>
-                                </svg>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-800">View All Requests</h3>
-                        </div>
-                        <p class="text-gray-600 text-sm">Monitor all active and historical blood requests from
-                            recipients.</p>
-                    </a>
-
-                </div>
+            <div
+                class="bg-gradient-to-br from-red-500 to-red-600 w-12 h-12 rounded-lg flex items-center justify-center mr-3">
+                <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                </svg>
             </div>
-            {% endblock %}
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Manager Dashboard</h1>
+                <p class="text-gray-500">Welcome, {{ user.name }}!</p>
+            </div>
+        </div>
+        <a href="{{ url_for('auth.logout') }}"
+            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">Logout</a>
+    </div>
+
+    <!-- Notification Bar -->
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg shadow-sm flex items-center justify-between">
+        <div class="flex items-center">
+            <svg class="w-6 h-6 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+                </path>
+            </svg>
+            <div>
+                <p class="text-sm text-red-700 font-medium">System Notifications</p>
+                <p class="text-xs text-red-600">Check your notifications for updates.</p>
+            </div>
+        </div>
+        <a href="{{ url_for('notifications.view_notifications') }}"
+            class="text-red-600 hover:text-red-800 text-sm font-medium">View All</a>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Requests Card -->
+        <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Requests</h3>
+            <p class="text-gray-500 text-sm mb-4">Manage blood requests from recipients.</p>
+            <a href="{{ url_for('manager.view_requests') }}"
+                class="text-red-600 font-medium hover:text-red-700 flex items-center">
+                View All Requests <span class="ml-1">&rarr;</span>
+            </a>
+        </div>
+
+        <!-- Donors Card -->
+        <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Donors</h3>
+            <p class="text-gray-500 text-sm mb-4">View and manage registered donors.</p>
+            <a href="{{ url_for('manager.donors') }}"
+                class="text-green-600 font-medium hover:text-green-700 flex items-center">
+                View All Donors <span class="ml-1">&rarr;</span>
+            </a>
+        </div>
+
+        <!-- Inventory Card -->
+        <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Inventory</h3>
+            <p class="text-gray-500 text-sm mb-4">Monitor blood stock levels across areas.</p>
+            <a href="{{ url_for('manager.inventory') }}"
+                class="text-blue-600 font-medium hover:text-blue-700 flex items-center">
+                View Inventory <span class="ml-1">&rarr;</span>
+            </a>
+        </div>
+
+        <!-- Donation Entry Card -->
+        <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Record Donation</h3>
+            <p class="text-gray-500 text-sm mb-4">Enter new donations (Voluntary/Exchange).</p>
+            <a href="{{ url_for('manager.donation_entry') }}"
+                class="text-purple-600 font-medium hover:text-purple-700 flex items-center">
+                Enter Donation <span class="ml-1">&rarr;</span>
+            </a>
+        </div>
+
+        <!-- Broadcast Alert Card -->
+        <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Broadcast Alert</h3>
+            <p class="text-gray-500 text-sm mb-4">Send system-wide or targeted notifications.</p>
+            <a href="{{ url_for('manager.send_notification') }}"
+                class="text-red-600 font-medium hover:text-red-700 flex items-center">
+                Send Alert <span class="ml-1">&rarr;</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

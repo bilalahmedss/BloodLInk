@@ -9,14 +9,57 @@
         <a href="{{ url_for('manager.dashboard') }}" class="text-red-600 hover:text-red-800">Back to Dashboard</a>
     </div>
 
+    <!-- Filter Form -->
+    <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
+        <form method="GET" class="flex flex-wrap gap-4 items-end">
+            <!-- Area Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Area</label>
+                <select name="area_id"
+                    class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <option value="">All Areas</option>
+                    {% for area in areas %}
+                    <option value="{{ area.id }}" {% if current_area|string==area.id|string %}selected{% endif %}>{{
+                        area.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Blood Type Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Blood Type</label>
+                <select name="blood_type"
+                    class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <option value="">All Types</option>
+                    {% for type in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] %}
+                    <option value="{{ type }}" {% if current_blood_type==type %}selected{% endif %}>{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2">
+                <button type="submit"
+                    class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
+                    Filter
+                </button>
+                <a href="{{ url_for(request.endpoint) }}"
+                    class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
     <div class="bg-white rounded-xl shadow-sm overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Area</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Blood
                         Type</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total
-                        Units</th>
+                        Units (Bags)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status
                     </th>
                 </tr>
@@ -24,6 +67,9 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 {% for item in inventory %}
                 <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                        {{ item.area_name }}
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span
                             class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
@@ -44,7 +90,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="3" class="px-6 py-4 text-center text-gray-500">No stock available.</td>
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No stock available.</td>
                 </tr>
                 {% endfor %}
             </tbody>

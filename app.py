@@ -8,26 +8,30 @@ class Config:
     # Update with your actual SQL Server connection string
     DB_CONNECTION_STRING = os.environ.get('DB_CONNECTION_STRING') or \
         'Driver={ODBC Driver 17 for SQL Server};Server=localhost;Database=BloodLink;Trusted_Connection=yes;'
+    
+    from datetime import timedelta
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # Initialize DB connection (using raw pyodbc for now as per requirements, or we can use SQLAlchemy if preferred, 
-    # but the prompt implies direct SQL usage or at least we need to set it up. 
-    # Let's stick to a helper for DB connections to keep it simple and robust.)
+    # Initialize DB connection
+    # We use raw pyodbc for direct SQL execution as per project requirements.
     
     from routes.auth_routes import auth_bp
     from routes.manager_routes import manager_bp
     from routes.donor_routes import donor_bp
     from routes.recipient_routes import recipient_bp
     from routes.main_routes import main_bp
+    from routes.notification_routes import notification_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(manager_bp)
     app.register_blueprint(donor_bp)
     app.register_blueprint(recipient_bp)
     app.register_blueprint(main_bp)
+    app.register_blueprint(notification_bp)
 
     @app.after_request
     def add_header(response):
@@ -42,7 +46,5 @@ def create_app(config_class=Config):
         return response
 
     return app
-
-from flask import current_app
 
 

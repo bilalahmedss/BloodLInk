@@ -1,99 +1,222 @@
 {% extends "base.html" %}
 
-{% block title %}BloodLink - Donation Entry{% endblock %}
+{% block title %}BloodLink - Record Donation{% endblock %}
 
 {% block content %}
 <div class="p-6">
     <div class="flex items-center justify-between mb-8">
-        <h1 class="text-2xl font-bold text-gray-800">Donation Entry</h1>
+        <h1 class="text-2xl font-bold text-gray-800">Record Donation</h1>
         <a href="{{ url_for('manager.dashboard') }}" class="text-red-600 hover:text-red-800">Back to Dashboard</a>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm p-6 max-w-2xl mx-auto">
-        <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Donor ID</label>
-            <div class="flex">
-                <input type="number" id="donorId"
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                <button onclick="lookupDonor()"
-                    class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700">Lookup</button>
-            </div>
-        </div>
+        <form id="donationForm" class="space-y-6">
+            <input type="hidden" id="selectedDonorId">
 
-        <div id="donorInfo" class="hidden space-y-4 border-t pt-4">
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <p class="text-sm text-gray-500">Name</p>
-                    <p class="font-semibold" id="donorName"></p>
+            <!-- Donor Lookup -->
+            <div class="relative">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Donor ID or Name</label>
+                <div class="flex">
+                    <input type="text" id="donorInput" placeholder="Enter ID or Name" required
+                        class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:z-10">
+                    <button type="button" onclick="lookupDonor()"
+                        class="bg-gray-100 px-4 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-gray-200 text-gray-700 font-medium">
+                        Lookup
+                    </button>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500">Blood Type</p>
-                    <p class="font-semibold" id="donorBloodType"></p>
+                <p id="lookupError" class="text-red-500 text-sm mt-2 hidden"></p>
+
+                <!-- Search Results Dropdown -->
+                <div id="searchResults"
+                    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 hidden max-h-60 overflow-y-auto">
+                    <!-- Results injected here -->
+                </div>
+
+                <!-- Selected Donor Info -->
+                <div id="selectedDonorInfo" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                    <div class="mb-3">
+                        <p class="text-lg font-semibold text-green-900" id="donorNameDisplay"></p>
+                        <p class="text-sm text-green-700" id="donorTypeDisplay"></p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="donationType" value="voluntary" checked
+                                onchange="toggleRequestField()" class="form-radio text-red-600">
+                            <span class="ml-2">Voluntary Donation</span>
+                        </label>
+                        <br>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="donationType" value="exchange" onchange="toggleRequestField()"
+                                class="form-radio text-red-600">
+                            <span class="ml-2">Exchange Donation</span>
+                        </label>
+                    </div>
                 </div>
             </div>
 
+            <!-- Volume Field (Read-only 1 Unit) -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Volume (Units)</label>
-                <input type="number" id="volume" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="1">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Bags (Units)</label>
+                <input type="number" id="volume" value="1" readonly
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed focus:outline-none">
+                <p class="mt-1 text-xs text-gray-500">Donation is strictly limited to 1 unit per session.</p>
             </div>
 
-            <div class="flex items-center">
-                <input type="checkbox" id="isExchange"
-                    class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
-                <label for="isExchange" class="ml-2 block text-sm text-gray-900">Is Exchange for Recipient?</label>
+            <!-- Request Selection (Hidden by default) -->
+            <div id="requestField" class="hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Request (Recipient)</label>
+                <select id="requestId"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <option value="">Select a request...</option>
+                    <!-- Options populated dynamically -->
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Select the request this donation is fulfilling.</p>
             </div>
 
-            <button onclick="submitDonation()"
-                class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 font-semibold">
+            <button type="submit"
+                class="w-full bg-red-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-red-700 transition-colors">
                 Submit Donation
             </button>
-        </div>
+        </form>
     </div>
 </div>
 
 <script>
+    function toggleRequestField() {
+        const type = document.querySelector('input[name="donationType"]:checked').value;
+        const requestField = document.getElementById('requestField');
+        if (type === 'exchange') {
+            requestField.classList.remove('hidden');
+            document.getElementById('requestId').required = true;
+        } else {
+            requestField.classList.add('hidden');
+            document.getElementById('requestId').required = false;
+        }
+    }
+
     function lookupDonor() {
-        const id = document.getElementById('donorId').value;
+        const query = document.getElementById('donorInput').value;
+        const resultsDiv = document.getElementById('searchResults');
+        const errorP = document.getElementById('lookupError');
+        const infoDiv = document.getElementById('selectedDonorInfo');
+
+        if (!query) return;
+
+        // Reset UI
+        resultsDiv.innerHTML = '';
+        resultsDiv.classList.add('hidden');
+        errorP.classList.add('hidden');
+        infoDiv.classList.add('hidden');
+        document.getElementById('selectedDonorId').value = '';
+
         fetch('/manager/donor-lookup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ donor_id: id })
+            body: JSON.stringify({ query: query })
         })
             .then(response => response.json())
             .then(data => {
-                if (data.error) {
-                    alert(data.error);
+                if (data.results && data.results.length > 0) {
+                    if (data.results.length === 1) {
+                        selectDonor(data.results[0]);
+                    } else {
+                        // Show list
+                        data.results.forEach(donor => {
+                            const div = document.createElement('div');
+                            div.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0';
+                            div.innerHTML = `<span class="font-medium">${donor.name}</span> <span class="text-gray-500 text-sm">(ID: ${donor.id}, ${donor.blood_type})</span>`;
+                            div.onclick = () => selectDonor(donor);
+                            resultsDiv.appendChild(div);
+                        });
+                        resultsDiv.classList.remove('hidden');
+                    }
                 } else {
-                    document.getElementById('donorName').innerText = data.name;
-                    document.getElementById('donorBloodType').innerText = data.blood_type;
-                    document.getElementById('donorInfo').classList.remove('hidden');
+                    errorP.innerText = 'No donor found.';
+                    errorP.classList.remove('hidden');
                 }
             });
     }
 
-    function submitDonation() {
-        const id = document.getElementById('donorId').value;
+    function selectDonor(donor) {
+        document.getElementById('searchResults').classList.add('hidden');
+        document.getElementById('selectedDonorId').value = donor.id;
+        document.getElementById('donorNameDisplay').innerText = donor.name;
+        document.getElementById('donorTypeDisplay').innerText = `ID: ${donor.id} | Blood Type: ${donor.blood_type}`;
+        document.getElementById('selectedDonorInfo').classList.remove('hidden');
+
+        // Fetch eligible requests for this donor's area
+        fetchRequests(donor.area_id);
+    }
+
+    function fetchRequests(areaId) {
+        const requestSelect = document.getElementById('requestId');
+        requestSelect.innerHTML = '<option value="">Loading requests...</option>';
+        requestSelect.disabled = true;
+
+        fetch(`/manager/get-requests-by-area/${areaId}`)
+            .then(response => response.json())
+            .then(data => {
+                requestSelect.innerHTML = '<option value="">Select a request...</option>';
+                if (data.requests && data.requests.length > 0) {
+                    data.requests.forEach(req => {
+                        const option = document.createElement('option');
+                        option.value = req.id;
+                        option.text = `${req.name} (${req.type}) - ${req.units_collected}/${req.units_required} units`;
+                        requestSelect.appendChild(option);
+                    });
+                    requestSelect.disabled = false;
+                } else {
+                    const option = document.createElement('option');
+                    option.text = "No active requests in this area";
+                    requestSelect.appendChild(option);
+                    requestSelect.disabled = true;
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching requests:', err);
+                requestSelect.innerHTML = '<option value="">Error loading requests</option>';
+            });
+    }
+
+    document.getElementById('donationForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const donorId = document.getElementById('selectedDonorId').value;
         const volume = document.getElementById('volume').value;
-        const isExchange = document.getElementById('isExchange').checked;
+        const type = document.querySelector('input[name="donationType"]:checked').value;
+        const isExchange = type === 'exchange';
+        const requestId = isExchange ? document.getElementById('requestId').value : null;
+
+        if (!donorId) {
+            alert('Please lookup and select a donor first.');
+            return;
+        }
+
+        if (isExchange && !requestId) {
+            alert('Please select a request for exchange donation.');
+            return;
+        }
 
         fetch('/manager/submit-donation', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                donor_id: id,
+                donor_id: donorId,
                 volume: volume,
-                is_exchange: isExchange
+                is_exchange: isExchange,
+                request_id: requestId
             })
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Donation recorded!');
+                    alert('Donation recorded successfully!');
                     location.reload();
                 } else {
                     alert('Error: ' + data.error);
                 }
             });
-    }
+    });
 </script>
 {% endblock %}

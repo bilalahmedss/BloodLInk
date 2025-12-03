@@ -9,7 +9,9 @@
         <!-- Blood Drop Icon in Red Square -->
         <div class="bg-red-600 rounded-lg p-3 mr-4 shadow-lg">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="white" />
+                <path
+                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                    fill="white" />
             </svg>
         </div>
         <!-- Brand Name -->
@@ -22,12 +24,15 @@
         <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">Enter your credentials</h2>
 
         <!-- Flash messages -->
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
-                    {{ messages[0] }}
-                </div>
-            {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div
+            class="mb-4 p-3 rounded {{ 'bg-green-100 text-green-700' if category == 'success' else 'bg-red-100 text-red-700' }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
 
         <!-- Form -->
@@ -51,9 +56,10 @@
                 class="w-full bg-red-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-200">
                 Login
             </button>
-            
+
             <div class="text-center mt-4">
-                <a href="{{ url_for('auth.register') }}" class="text-sm text-red-600 hover:underline">Don't have an account? Register</a>
+                <a href="{{ url_for('auth.register') }}" class="text-sm text-red-600 hover:underline">Don't have an
+                    account? Register</a>
             </div>
         </form>
     </div>

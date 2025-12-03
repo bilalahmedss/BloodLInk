@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}BloodLink - Send Notification{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Send System Notification</h2>
+        <a href="{{ url_for('manager.dashboard') }}" class="text-red-600 hover:text-red-800">Back to Dashboard</a>
+    </div>
+
+    <form method="POST" action="{{ url_for('manager.send_notification') }}" class="space-y-6">
+        <!-- Target Audience -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Target Audience</label>
+            <select name="target_role" id="target_role" onchange="toggleFilters()"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all">
+                <option value="All">All Users</option>
+                <option value="Donor">Donors Only</option>
+                <option value="Recipient">Recipients Only</option>
+                <option value="Manager">Managers Only</option>
+            </select>
+        </div>
+
+        <!-- Blood Type Filter (Hidden by default) -->
+        <div id="bloodTypeFilter" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Blood Type (Optional)</label>
+            <select name="blood_type"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all">
+                <option value="">All Blood Types</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+            </select>
+        </div>
+
+        <!-- Message -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+            <textarea name="message" rows="4" required placeholder="Type your urgent message here..."
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit"
+            class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors shadow-sm">
+            Broadcast Notification
+        </button>
+    </form>
+</div>
+
+<script>
+    function toggleFilters() {
+        const role = document.getElementById('target_role').value;
+        const filterDiv = document.getElementById('bloodTypeFilter');
+
+        if (role === 'Donor' || role === 'Recipient') {
+            filterDiv.classList.remove('hidden');
+        } else {
+            filterDiv.classList.add('hidden');
+        }
+    }
+</script>
+{% endblock %}

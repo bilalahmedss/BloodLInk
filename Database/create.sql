@@ -1,5 +1,5 @@
 -- ==========================================================
--- BLOOD DONATION MANAGEMENT SYSTEM - ROBUST SQL SERVER VERSION
+-- BLOOD DONATION MANAGEMENT SYSTEM - FINAL SCHEMA
 -- ==========================================================
 
 CREATE DATABASE BloodLink;
@@ -9,8 +9,10 @@ USE BloodLink;
 GO
 
 -- ==========================================================
--- USER TABLE
+-- 1. CORE TABLES
 -- ==========================================================
+
+-- User Table: Central authentication
 CREATE TABLE [User] (
     id INT IDENTITY(1,1) PRIMARY KEY,
     email NVARCHAR(255) NOT NULL UNIQUE,
@@ -19,24 +21,31 @@ CREATE TABLE [User] (
 );
 GO
 
--- ==========================================================
--- BLOOD TYPE TABLE
--- ==========================================================
+-- Blood Type Table: Lookup for blood types
 CREATE TABLE Blood_Type (
     bloodtype_id INT IDENTITY(1,1) PRIMARY KEY,
     type VARCHAR(10) NOT NULL UNIQUE
 );
 GO
 
+-- Area Table: Lookup for locations
+CREATE TABLE Area (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(255) NOT NULL UNIQUE
+);
+GO
+
 -- ==========================================================
--- DONOR TABLE
+-- 2. ROLE-SPECIFIC TABLES
 -- ==========================================================
+
+-- Donor Table: Extends User
 CREATE TABLE Donor (
     id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(255) NOT NULL,
     bloodtype INT NOT NULL,
     status VARCHAR(50),
-    area NVARCHAR(255),
+    area_id INT,
     number NVARCHAR(20),
     DOB DATE,
     age INT,
@@ -44,28 +53,29 @@ CREATE TABLE Donor (
     user_id INT UNIQUE,
     
     FOREIGN KEY (bloodtype) REFERENCES Blood_Type(bloodtype_id),
+    FOREIGN KEY (area_id) REFERENCES Area(id),
     FOREIGN KEY (user_id) REFERENCES [User](id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 GO
 
--- ==========================================================
--- RECIPIENT TABLE
--- ==========================================================
+-- Recipient Table: Extends User
 CREATE TABLE Recipient (
     id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(255) NOT NULL,
     bloodtype INT NOT NULL,
-    area NVARCHAR(255),
+    area_id INT,
+    number NVARCHAR(20),
+    DOB DATE,
+    age INT,
     user_id INT UNIQUE,
     
     FOREIGN KEY (bloodtype) REFERENCES Blood_Type(bloodtype_id),
+    FOREIGN KEY (area_id) REFERENCES Area(id),
     FOREIGN KEY (user_id) REFERENCES [User](id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 GO
 
--- ==========================================================
--- MANAGER TABLE
--- ==========================================================
+-- Manager Table: Extends User (Global Role)
 CREATE TABLE Manager (
     id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(255) NOT NULL,
@@ -76,8 +86,10 @@ CREATE TABLE Manager (
 GO
 
 -- ==========================================================
--- REQUEST TABLE
+-- 3. OPERATIONAL TABLES
 -- ==========================================================
+
+-- Request Table: Tracks blood requests
 CREATE TABLE Request (
     id INT IDENTITY(1,1) PRIMARY KEY,
     status VARCHAR(50) NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Approved', 'Fulfilled', 'Rejected')),
@@ -95,9 +107,7 @@ CREATE TABLE Request (
 );
 GO
 
--- ==========================================================
--- DONATION_COMPLETED TABLE
--- ==========================================================
+-- Donation_Completed Table: Records successful donations
 CREATE TABLE Donation_Completed (
     id INT IDENTITY(1,1) PRIMARY KEY,
     request_id INT,
@@ -113,43 +123,21 @@ CREATE TABLE Donation_Completed (
 );
 GO
 
--- ==========================================================
--- STOCK TABLE
--- ==========================================================
+-- Stock Table: Physical inventory
 CREATE TABLE Stock (
     bag_id INT IDENTITY(1,1) PRIMARY KEY,
     units INT NOT NULL CHECK (units > 0),
     donation_id INT NOT NULL UNIQUE,
     request_id INT,
+    area_id INT,
     
     FOREIGN KEY (donation_id) REFERENCES Donation_Completed(id) ON DELETE CASCADE,
-    FOREIGN KEY (request_id) REFERENCES Request(id) ON DELETE SET NULL
+    FOREIGN KEY (request_id) REFERENCES Request(id) ON DELETE SET NULL,
+    FOREIGN KEY (area_id) REFERENCES Area(id)
 );
 GO
 
--- ==========================================================
--- PENDING DONATION TABLE
--- ==========================================================
-CREATE TABLE Pending_Donation (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    donor_id INT NOT NULL,
-    blood_type INT NOT NULL,
-    units INT NOT NULL CHECK (units > 0),
-    submitted_date DATETIME NOT NULL DEFAULT GETDATE(),
-    status VARCHAR(50) NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Approved', 'Rejected')),
-    approved_by INT,
-    approval_date DATETIME,
-    notes NVARCHAR(255),
-    
-    FOREIGN KEY (donor_id) REFERENCES Donor(id) ON DELETE CASCADE,
-    FOREIGN KEY (blood_type) REFERENCES Blood_Type(bloodtype_id),
-    FOREIGN KEY (approved_by) REFERENCES Manager(id) ON DELETE SET NULL
-);
-GO
-
--- ==========================================================
--- DONOR HISTORY TABLE
--- ==========================================================
+-- Donor History Table: Historical record
 CREATE TABLE Donor_History (
     donor_id INT NOT NULL,
     [date] DATETIME NOT NULL,
@@ -160,9 +148,7 @@ CREATE TABLE Donor_History (
 );
 GO
 
--- ==========================================================
--- NOTIFICATIONS TABLE
--- ==========================================================
+-- Notifications Table: System alerts
 CREATE TABLE Notifications (
     id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
@@ -176,8 +162,13 @@ CREATE TABLE Notifications (
 GO
 
 -- ==========================================================
--- INSERT SAMPLE BLOOD TYPES
+-- 4. SEED DATA
 -- ==========================================================
+
 INSERT INTO Blood_Type (type)
 VALUES ('A+'), ('A-'), ('B+'), ('B-'), ('AB+'), ('AB-'), ('O+'), ('O-');
+GO
+
+INSERT INTO Area (name)
+VALUES ('Clifton'), ('Bahria Town'), ('DHA'), ('Johar'), ('Gulshan'), ('PECHS');
 GO

@@ -1,16 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <title>{% block title %}BloodLink{% endblock %}</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Check for unread notifications on load
+        document.addEventListener('DOMContentLoaded', function () {
+            const badge = document.getElementById('navNotificationBadge');
+            if (badge) {
+                fetch('/notifications/unread-count')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.count > 0) {
+                            badge.innerText = data.count;
+                            badge.classList.remove('hidden');
+                        }
+                    })
+                    .catch(err => console.error('Error fetching notifications'));
+            }
+        });
+    </script>
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
-    
+
 </head>
+
 <body class="bg-gray-50 min-h-screen">
     {% block content %}{% endblock %}
 </body>
+
 </html>

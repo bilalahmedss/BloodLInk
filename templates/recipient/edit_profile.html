@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}BloodLink - Edit Profile{% endblock %}
+
+{% block content %}
+<div class="bg-gray-100 min-h-screen flex flex-col items-center justify-center font-sans py-12">
+    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">Edit Profile</h2>
+
+        <form action="{{ url_for('recipient.edit_profile') }}" method="POST" class="space-y-6">
+            <!-- Name -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                <input type="text" name="name" value="{{ recipient.name }}" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
+
+            <!-- Blood Type (Read-Only) -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Blood Type</label>
+                <div class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 font-medium">
+                    {{ recipient.blood_type_str }}
+                </div>
+            </div>
+
+            <!-- Area -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Area / City</label>
+                <select name="area"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                    {% for area in areas %}
+                    <option value="{{ area.id }}" {% if recipient.area_id==area.id %}selected{% endif %}>{{ area.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input type="tel" name="number" value="{{ recipient.number or '' }}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                <input type="date" name="dob" value="{{ recipient.DOB or '' }}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
+
+            <div class="flex space-x-4">
+                <button type="submit"
+                    class="w-full bg-red-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-red-700 transition-colors">
+                    Save Changes
+                </button>
+                <a href="{{ url_for('recipient.dashboard') }}"
+                    class="w-full bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-md hover:bg-gray-300 transition-colors text-center">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

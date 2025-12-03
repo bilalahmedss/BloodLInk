@@ -9,7 +9,49 @@
         <a href="{{ url_for('manager.dashboard') }}" class="text-red-600 hover:text-red-800">Back to Dashboard</a>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <!-- Filter Form -->
+    <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
+        <form method="GET" class="flex flex-wrap gap-4 items-end">
+            <!-- Area Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Area</label>
+                <select name="area_id"
+                    class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <option value="">All Areas</option>
+                    {% for area in areas %}
+                    <option value="{{ area.id }}" {% if current_area|string==area.id|string %}selected{% endif %}>{{
+                        area.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Blood Type Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Blood Type</label>
+                <select name="blood_type"
+                    class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <option value="">All Types</option>
+                    {% for type in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] %}
+                    <option value="{{ type }}" {% if current_blood_type==type %}selected{% endif %}>{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2">
+                <button type="submit"
+                    class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
+                    Filter
+                </button>
+                <a href="{{ url_for(request.endpoint) }}"
+                    class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
@@ -19,30 +61,25 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Area</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Availability</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total
+                        Donations</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last
+                        Donation</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 {% for donor in donors %}
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {{ donor.name }}
-                    </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span
-                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                            {{ donor.type }}
-                        </span>
+                        <div class="text-sm font-medium text-gray-900">{{ donor.name }}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ donor.area or '-' }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ donor.number or '-' }}
-                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ donor.blood_type }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ donor.area_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ donor.phone }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        {% if donor.availability %}
+                        {% if donor.is_available %}
                         <span
                             class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Available</span>
                         {% else %}
@@ -50,14 +87,55 @@
                             class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Unavailable</span>
                         {% endif %}
                     </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{{ donor.total_donations
+                        }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ donor.last_donation or '-' }}</td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">No donors found.</td>
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">No donors found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <div class="flex justify-center">
+        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            {% if page > 1 %}
+            <a href="{{ url_for(request.endpoint, page=page-1, area_id=current_area, blood_type=current_blood_type) }}"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Previous</span>
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                    aria-hidden="true">
+                    <path fill-rule="evenodd"
+                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+            </a>
+            {% endif %}
+
+            <span
+                class="relative inline-flex items-center px-4 py-2 border border-red-500 bg-red-50 text-sm font-medium text-red-700">
+                Page {{ page }} of {{ total_pages }}
+            </span>
+
+            {% if page < total_pages %} <a
+                href="{{ url_for(request.endpoint, page=page+1, area_id=current_area, blood_type=current_blood_type) }}"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Next</span>
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                    aria-hidden="true">
+                    <path fill-rule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+                </a>
+                {% endif %}
+        </nav>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

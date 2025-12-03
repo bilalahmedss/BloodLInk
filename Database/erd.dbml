@@ -1,0 +1,92 @@
+Table User {
+  id integer [pk, increment, unique]
+  email varchar [not null, unique]
+  password varchar [not null]
+  role varchar [not null, note: "Check: 'Donor', 'Recipient', 'Manager'"]
+}
+
+Table Blood_Type {
+  bloodtype_id integer [pk, increment, unique]
+  type varchar [not null, unique]
+}
+
+Table Area {
+  id integer [pk, increment, unique]
+  name varchar [not null, unique]
+}
+
+Table Donor {
+  id integer [pk, increment, unique]
+  name varchar [not null]
+  bloodtype integer [not null, ref: > Blood_Type.bloodtype_id]
+  status varchar
+  area_id integer [ref: > Area.id]
+  number varchar
+  DOB date
+  age integer
+  availability boolean [default: true]
+  user_id integer [unique, ref: > User.id]
+}
+
+Table Recipient {
+  id integer [pk, increment, unique]
+  name varchar [not null]
+  bloodtype integer [not null, ref: > Blood_Type.bloodtype_id]
+  area_id integer [ref: > Area.id]
+  number varchar
+  DOB date
+  age integer
+  user_id integer [unique, ref: > User.id]
+}
+
+Table Manager {
+  id integer [pk, increment, unique]
+  name varchar [not null]
+  user_id integer [unique, ref: > User.id]
+}
+
+Table Request {
+  id integer [pk, increment, unique]
+  status varchar [not null, default: 'Pending', note: "Check: 'Pending', 'Approved', 'Fulfilled', 'Rejected'"]
+  recipient_id integer [not null, ref: > Recipient.id]
+  units_required integer [not null, note: "> 0"]
+  units_collected integer [default: 0]
+  date_requested date [default: `GETDATE()`]
+  date_fulfilled date
+  approved_by integer [ref: > Manager.id]
+  blood_type integer [not null, ref: > Blood_Type.bloodtype_id]
+}
+
+Table Donation_Completed {
+  id integer [pk, increment, unique]
+  request_id integer [ref: > Request.id]
+  units integer [not null, note: "> 0"]
+  donor_id integer [not null, ref: > Donor.id]
+  blood_type integer [not null, ref: > Blood_Type.bloodtype_id]
+  donation_date datetime [default: `GETDATE()`]
+  is_exchange boolean [default: false]
+}
+
+Table Stock {
+  bag_id integer [pk, increment, unique]
+  units integer [not null, note: "> 0"]
+  donation_id integer [not null, unique, ref: > Donation_Completed.id]
+  request_id integer [ref: > Request.id]
+  area_id integer [ref: > Area.id]
+}
+
+Table Donor_History {
+  donor_id integer [pk, ref: > Donor.id]
+  date datetime [pk]
+  unit integer [not null, note: "> 0"]
+  Note: 'Composite primary key on donor_id and date'
+}
+
+Table Notifications {
+  id integer [pk, increment, unique]
+  user_id integer [not null, ref: > User.id]
+  message text [not null]
+  is_read boolean [default: false]
+  created_at datetime [default: `GETDATE()`]
+  type varchar [note: "Check: 'Broadcast', 'Collection', 'General'"]
+}
